@@ -92,6 +92,7 @@ public class AuthorizationCheckerTest {
         io.camunda.zeebe.auth.Authorization.AUTHORIZED_USERNAME;
 
     private static final String RESOURCE_ID = "id";
+    private static final String EMPTY_STRING = "";
 
     private AuthorizationChecker authorizationChecker;
     private FakeAuthorizationReader authorizationReader;
@@ -109,6 +110,7 @@ public class AuthorizationCheckerTest {
               AuthorizationResourceType.PROCESS_DEFINITION.name(),
               AuthorizationResourceMatcher.ANY.value(),
               WILDCARD_RESOURCE_ID,
+              EMPTY_STRING,
               Set.of(PermissionType.READ_PROCESS_INSTANCE)));
       authorizationReader.create(
           new AuthorizationEntity(
@@ -118,6 +120,7 @@ public class AuthorizationCheckerTest {
               AuthorizationResourceType.PROCESS_DEFINITION.name(),
               AuthorizationResourceMatcher.ID.value(),
               RESOURCE_ID,
+              EMPTY_STRING,
               Set.of(PermissionType.READ_PROCESS_INSTANCE)));
       // client based authorizations
       authorizationReader.create(
@@ -128,6 +131,7 @@ public class AuthorizationCheckerTest {
               AuthorizationResourceType.PROCESS_DEFINITION.name(),
               AuthorizationResourceMatcher.ANY.value(),
               WILDCARD_RESOURCE_ID,
+              EMPTY_STRING,
               Set.of(PermissionType.READ_PROCESS_INSTANCE)));
       authorizationReader.create(
           new AuthorizationEntity(
@@ -137,6 +141,7 @@ public class AuthorizationCheckerTest {
               AuthorizationResourceType.PROCESS_DEFINITION.name(),
               AuthorizationResourceMatcher.ID.value(),
               RESOURCE_ID,
+              EMPTY_STRING,
               Set.of(PermissionType.READ_PROCESS_INSTANCE)));
       // mapping rule based authorizations
       authorizationReader.create(
@@ -147,6 +152,7 @@ public class AuthorizationCheckerTest {
               AuthorizationResourceType.PROCESS_DEFINITION.name(),
               AuthorizationResourceMatcher.ANY.value(),
               WILDCARD_RESOURCE_ID,
+              EMPTY_STRING,
               Set.of(PermissionType.READ_PROCESS_INSTANCE)));
       authorizationReader.create(
           new AuthorizationEntity(
@@ -156,6 +162,7 @@ public class AuthorizationCheckerTest {
               AuthorizationResourceType.PROCESS_DEFINITION.name(),
               AuthorizationResourceMatcher.ID.value(),
               RESOURCE_ID,
+              EMPTY_STRING,
               Set.of(PermissionType.READ_PROCESS_INSTANCE)));
     }
 
@@ -781,6 +788,7 @@ public class AuthorizationCheckerTest {
           resourceType.name(),
           matcher.value(),
           resourceId,
+          "",
           permissionTypes);
     }
 
@@ -1132,6 +1140,7 @@ public class AuthorizationCheckerTest {
           resourceType.name(),
           matcher.value(),
           resourceId,
+          "",
           permissionTypes);
     }
 
