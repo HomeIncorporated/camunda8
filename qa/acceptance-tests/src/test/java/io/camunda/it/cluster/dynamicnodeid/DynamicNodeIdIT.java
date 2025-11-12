@@ -5,14 +5,16 @@
  * Licensed under the Camunda License 1.0. You may not use this file
  * except in compliance with the Camunda License 1.0.
  */
-package io.camunda.it.cluster;
+package io.camunda.it.cluster.dynamicnodeid;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.zeebe.dynamic.nodeid.Lease;
 import io.camunda.zeebe.dynamic.nodeid.repository.s3.S3NodeIdRepository;
 import io.camunda.zeebe.dynamic.nodeid.repository.s3.S3NodeIdRepository.S3ClientConfig;
+import io.camunda.zeebe.qa.util.actuator.BrokerHealthActuator;
 import io.camunda.zeebe.qa.util.cluster.TestCluster;
 import io.camunda.zeebe.qa.util.junit.ZeebeIntegration;
 import io.camunda.zeebe.qa.util.junit.ZeebeIntegration.TestZeebe;
@@ -38,24 +40,22 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Testcontainers
 @ZeebeIntegration
-public class DynamicNodeIdTest {
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-  private static final Duration LEASE_DURATION = Duration.ofSeconds(10);
-
-  private static final String TASK_ID_PROPERTY = "camunda.cluster.dynamic-node-id.s3.taskId";
-
+public class DynamicNodeIdIT {
   @Container
-  private static final LocalStackContainer S3 =
+  protected static final LocalStackContainer S3 =
       new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.10"))
           .withServices(Service.S3)
           .withEnv("LS_LOG", "trace");
 
-  @AutoClose private static S3Client s3Client;
-  private static final String BUCKET_NAME = UUID.randomUUID().toString();
-  private static final int CLUSTER_SIZE = 3;
+  @AutoClose protected static S3Client s3Client;
+  protected static final String BUCKET_NAME = UUID.randomUUID().toString();
+  protected static final int CLUSTER_SIZE = 3;
+  protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  protected static final Duration LEASE_DURATION = Duration.ofSeconds(10);
+  protected static final String TASK_ID_PROPERTY = "camunda.cluster.dynamic-node-id.s3.taskId";
 
   @TestZeebe
-  private final TestCluster testCluster =
+  protected final TestCluster testCluster =
       TestCluster.builder()
           .withName("dynamic-node-id-test")
           .withBrokersCount(CLUSTER_SIZE)
@@ -122,9 +122,16 @@ public class DynamicNodeIdTest {
                     b -> b.property(TASK_ID_PROPERTY, String.class, null)));
 
     assertThat(s3NodeIdMapping).isEqualTo(configNodeIdMapping);
+
+    // health check passes
+    for (final var broker : testCluster.brokers().values()) {
+      final var actuator = BrokerHealthActuator.of(broker);
+      assertThatNoException().isThrownBy(actuator::ready);
+      assertThatNoException().isThrownBy(actuator::live);
+    }
   }
 
-  private List<Lease> readLeases(final List<S3Object> objectsInBucket) throws IOException {
+  protected List<Lease> readLeases(final List<S3Object> objectsInBucket) throws IOException {
     final var leases = new ArrayList<Lease>();
     for (final var object : objectsInBucket) {
       final var lease = s3Client.getObject(b -> b.bucket(BUCKET_NAME).key(object.key()));
