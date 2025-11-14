@@ -44,6 +44,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+<<<<<<< HEAD
+=======
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+>>>>>>> 8f5a7b08 (test: stabilize CredentialsProvider tests)
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -92,6 +97,8 @@ public class CredentialsProviderSelfManagedTest {
   }
 
   @Test
+  // this allows to run the test in a loop, as the in memory auth cache is cleared
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void shouldHaveZeebeAuth() throws IOException {
     // given
     final CredentialsProvider credentialsProvider = configuration.getCredentialsProvider();
